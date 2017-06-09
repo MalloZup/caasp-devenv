@@ -53,7 +53,7 @@ You can provide the `STAGING` environment variable to the start script, so conta
 with the `STAGING` image version that you provide. For example, you could execute:
 
 ```sh
-$ STAGING=staging_a VELUM_DIR=~/projects/kubic-project/velum SALT_DIR=~/projects/kubic-project/salt CONTAINER_MANIFESTS_DIR=~/projects/kubic-project/caasp-container-manifests ./start --non-interactive
+$ STAGING=staging_a VELUM_DIR=~/projects/kubic-project/velum SALT_DIR=~/projects/kubic-project/salt CONTAINER_MANIFESTS_DIR=~/projects/kubic-project/caasp-container-manifests ./start
 ```
 
 In this case, for example, MariaDB container would be pulled as: `docker-testing-registry.suse.de/staging_a/sles12/mariadb:10.0`
@@ -71,7 +71,7 @@ organized on that specific point in time. However, two cases will always apply: 
 development branch versions.
 
 ```sh
-$ STAGING=devel VELUM_DIR=~/projects/kubic-project/velum SALT_DIR=~/projects/kubic-project/salt CONTAINER_MANIFESTS_DIR=~/projects/kubic-project/caasp-container-manifests ./start --non-interactive
+$ STAGING=devel VELUM_DIR=~/projects/kubic-project/velum SALT_DIR=~/projects/kubic-project/salt CONTAINER_MANIFESTS_DIR=~/projects/kubic-project/caasp-container-manifests ./start
 ```
 
 This will effectively use the `devel` version of the containers.
@@ -90,7 +90,7 @@ But in general we use `rspec` and `rubocop` to do the heavy lifting while develo
 will need to create the testing environment database:
 
 ```sh
-$ docker exec -it $(docker ps | grep velum-dashboard | awk '{print $1}') bash -c "RAILS_ENV=test rake db:setup"
+$ docker exec -it $(docker ps | grep velum-dashboard | awk '{print $1}') entrypoint.sh bash -c "RAILS_ENV=test rake db:setup"
 ```
 
 You will need to do this only once (only once every time you recreate the development environment).
@@ -99,8 +99,8 @@ After this, you will be able to go to the typical cycle of hacking code, and run
 this:
 
 ```sh
-$ docker exec -it $(docker ps | grep velum-dashboard | awk '{print $1}') bash -c "RAILS_ENV=test rspec"
-$ docker exec -it $(docker ps | grep velum-dashboard | awk '{print $1}') bash -c "RAILS_ENV=test rubocop".
+$ docker exec -it $(docker ps | grep velum-dashboard | awk '{print $1}') entrypoint.sh bash -c "RAILS_ENV=test rspec"
+$ docker exec -it $(docker ps | grep velum-dashboard | awk '{print $1}') entrypoint.sh bash -c "RAILS_ENV=test rubocop".
 ```
 
 ## Hacking on Salt
