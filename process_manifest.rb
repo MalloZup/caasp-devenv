@@ -24,10 +24,6 @@ def container_volume(name:, path:)
   }
 end
 
-def patch_spec(yaml)
-  yaml["spec"]["imagePullPolicy"] = "Always"
-end
-
 def patch_annotation_image(annotation)
   # array of keys to process - makes it easy to add more later
   keys = ["pod.beta.kubernetes.io/init-containers"]
@@ -55,6 +51,7 @@ def patch_container_image(container)
     container["image"] = "sles12/velum:development"
   elsif container["image"] =~ /^sles12/
     container["image"] = "docker-testing-registry.suse.de/#{registry_container_image container}"
+    container["imagePullPolicy"] = "Always"
   else
     warn "unknown image #{container["image"]}; won't replace it"
   end
@@ -182,7 +179,6 @@ end
 
 yaml = YAML.safe_load STDIN
 
-patch_spec yaml
 patch_containers yaml
 patch_host_volumes yaml
 patch_annotations yaml
