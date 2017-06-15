@@ -4,66 +4,35 @@ metadata:
   name: dev-env
   labels:
     name: dev-env
-  annotations:
-    pod.beta.kubernetes.io/init-containers: '[
-      {
-        "name": "mariadb-dev-user-secrets",
-        "image": "sles12/mariadb:10.0",
-        "command": ["/setup-mysql.sh"],
-        "env": [
-          {
-            "name": "ENV",
-            "value": "development"
-          }
-        ],
-        "volumeMounts": [
-          {
-            "mountPath": "/infra-secrets",
-            "name": "infra-secrets"
-          },
-          {
-            "mountPath": "/var/run/mysql",
-            "name": "mariadb-unix-socket"
-          },
-          {
-            "mountPath": "/setup-mysql.sh",
-            "name": "setup-mysql",
-            "readOnly": true
-          }
-        ]
-      },
-      {
-        "name": "mariadb-test-user-secrets",
-        "image": "sles12/mariadb:10.0",
-        "command": ["/setup-mysql.sh"],
-        "env": [
-          {
-            "name": "ENV",
-            "value": "test"
-          }
-        ],
-        "volumeMounts": [
-          {
-            "mountPath": "/infra-secrets",
-            "name": "infra-secrets"
-          },
-          {
-            "mountPath": "/var/run/mysql",
-            "name": "mariadb-unix-socket"
-          },
-          {
-            "mountPath": "/setup-mysql.sh",
-            "name": "setup-mysql",
-            "readOnly": true
-          }
-        ]
-      }
-    ]'
 spec:
+  restartPolicy: OnFailure
   containers:
-    - name: dummy-dev-env-container
-      image: sles12/velum:0.0
-      command: ["bash", "-c", "exit 0"]
+    - name: mariadb-dev-user-secrets
+      image: sles12/mariadb:10.0
+      command: ["/setup-mysql.sh"]
+      env:
+        - name: ENV
+          value: development
+      volumeMounts:
+        - name: infra-secrets
+          mountPath: /infra-secrets
+        - name: mariadb-unix-socket
+          mountPath: /var/run/mysql
+        - name: setup-mysql
+          mountPath: /setup-mysql.sh
+    - name: mariadb-test-user-secrets
+      image: sles12/mariadb:10.0
+      command: ["/setup-mysql.sh"]
+      env:
+        - name: ENV
+          value: test
+      volumeMounts:
+        - name: infra-secrets
+          mountPath: /infra-secrets
+        - name: mariadb-unix-socket
+          mountPath: /var/run/mysql
+        - name: setup-mysql
+          mountPath: /setup-mysql.sh
   volumes:
     - name: mariadb-unix-socket
       hostPath:
