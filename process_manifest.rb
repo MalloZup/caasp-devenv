@@ -46,7 +46,8 @@ def patch_annotation_image(annotation)
 end
 
 def registry_container_image(container)
-  ENV["STAGING"] ? "#{ENV["STAGING"]}/#{container["image"]}" : container["image"]
+  stage = ENV.fetch("STAGING", "release")
+  stage == "release" ? container["image"] : "#{ENV["STAGING"]}/#{container["image"]}"
 end
 
 def patch_container_image(container)
