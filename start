@@ -30,6 +30,19 @@ while (( $interactive_mode == 1)) ; do
   esac
 done
 
+# cleaning up development image when necessary
+if [ "$(docker images  --format '{{title .ID}}' sles12/velum:development)" != "" ]; then
+  log "comparing remote and local Gemfile.lock to see if the local development image needs to be rebuilt"
+  docker run --rm -v $VELUM_DIR:/srv/velum sles12/velum:development diff /var/lib/velum/Gemfile.lock /srv/velum/Gemfile.lock &> /dev/null
+
+  if [ $? -ne 0 ]; then
+    log "local velum image is old, cleaning it up to force a rebuild"
+    for tag in 0.0 development; do
+      docker rmi -f sles12/velum:$tag
+    done
+  fi
+fi
+
 ./cleanup
 
 if [ -z ${VELUM_DIR+x} ]
@@ -96,6 +109,7 @@ else
                     bundle config --local frozen 0 && \
                     bundle config --local build.nokogiri --use-system-libraries && \
                     bundle install --binstubs=/usr/local/bin --deployment --path=/var/lib/velum && \
+                    cp Gemfile.lock /var/lib/velum/ && \
                     wget -q https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 -P /opt && \
                     tar -xjf /opt/phantomjs-2.1.1-linux-x86_64.tar.bz2 -C /opt && \
                     mv /opt/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin && \

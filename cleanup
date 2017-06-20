@@ -2,7 +2,7 @@
 
 log()   { echo ">>> $1" ; }
 
-[[ -d manifest-templates ]] || { echo >&2 "Please run this script from within the kubernetes folder"; exit 1; }
+[[ -d manifest-templates ]] || { echo >&2 "Please run this script from within the root folder"; exit 1; }
 
 log "Cleaning up old containers"
 for i in `docker ps -a | grep k8s | awk '{print $1}'`; do docker rm -vf $i; done
