@@ -30,19 +30,6 @@ while (( $interactive_mode == 1)) ; do
   esac
 done
 
-# cleaning up development image when necessary
-if [ "$(docker images  --format '{{title .ID}}' sles12/velum:development)" != "" ]; then
-  log "comparing remote and local Gemfile.lock to see if the local development image needs to be rebuilt"
-  docker run --rm -v $VELUM_DIR:/srv/velum sles12/velum:development diff /var/lib/velum/Gemfile.lock /srv/velum/Gemfile.lock &> /dev/null
-
-  if [ $? -ne 0 ]; then
-    log "local velum image is old, cleaning it up to force a rebuild"
-    for tag in 0.0 development; do
-      docker rmi -f sles12/velum:$tag
-    done
-  fi
-fi
-
 ./cleanup
 
 if [ -z ${VELUM_DIR+x} ]
@@ -61,6 +48,19 @@ if [ -z ${CONTAINER_MANIFESTS_DIR+x} ]
 then
     log "You must provide a CONTAINER_MANIFESTS_DIR, aborting"
     exit 1
+fi
+
+# cleaning up development image when necessary
+if [ "$(docker images  --format '{{title .ID}}' sles12/velum:development)" != "" ]; then
+  log "comparing remote and local Gemfile.lock to see if the local development image needs to be rebuilt"
+  docker run --rm -v $VELUM_DIR:/srv/velum sles12/velum:development diff /var/lib/velum/Gemfile.lock /srv/velum/Gemfile.lock &> /dev/null
+
+  if [ $? -ne 0 ]; then
+    log "local velum image is old, cleaning it up to force a rebuild"
+    for tag in 0.0 development; do
+      docker rmi -f sles12/velum:$tag
+    done
+  fi
 fi
 
 ruby adapt_salt_config.rb $SALT_DIR > /dev/null
