@@ -65,8 +65,8 @@ fi
 
 ruby adapt_salt_config.rb $SALT_DIR > /dev/null
 
-mkdir tmp/salt/config/admin-minion.d
-cp salt-admin-minion-config/* tmp/salt/config/admin-minion.d
+mkdir tmp/salt/config/admin
+cp -r salt-admin-minion-config/* tmp/salt/config/admin
 
 for template in $(ls $CONTAINER_MANIFESTS_DIR/*.yaml)
 do
@@ -124,6 +124,12 @@ else
   # FIXME: remove this (read patch_schema for more information)
   bash ./patch_schema
 fi
+
+log "Initializing PKI..."
+mkdir -p $PWD/tmp/fake-root/etc/pki
+docker run --rm --network=host -v $PWD/tmp/fake-root/etc/pki:/etc/pki \
+                               -v $CONTAINER_MANIFESTS_DIR/gen-certs.sh:/gen-certs.sh \
+       sles12/velum:development /gen-certs.sh &> /dev/null
 
 log "Launching kubelet"
 sudo kubelet --pod-manifest-path=$PWD/manifests --root-dir=$PWD/tmp --v=$KUBE_LOG_LEVEL --address=127.0.0.1 --hostname-override=127.0.0.1 --cgroups-per-qos=false --enforce-node-allocatable=""
