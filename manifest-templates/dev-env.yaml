@@ -4,7 +4,26 @@ metadata:
   name: dev-env
   labels:
     name: dev-env
+  annotations:
+    pod.beta.kubernetes.io/init-containers: '[
+      {
+        "name": "wait-for-salt-minion-admin-key-generation",
+        "image": "sles12/salt-minion:2016.11.4",
+        "command": ["sh", "-c", "while [ ! -f /salt-admin-minion-pki/minion.pem ]; do
+                                   sleep 1;
+                                 done;
+                                 exit 0"],
+        "volumeMounts": [
+          {
+            "mountPath": "/salt-admin-minion-pki",
+            "name": "salt-admin-minion-pki",
+            "readOnly": true
+          }
+        ]
+      }
+    ]'
 spec:
+  hostNetwork: true
   restartPolicy: OnFailure
   containers:
     - name: mariadb-dev-user-secrets
@@ -33,6 +52,11 @@ spec:
           mountPath: /var/run/mysql
         - name: setup-mysql
           mountPath: /setup-mysql.sh
+    - name: dev-env-admin-node
+      image: sles12/salt-minion:2016.11.4
+      volumeMounts:
+        - name: salt-admin-minion-pki
+          mountPath: /etc/salt/pki/minion
   volumes:
     - name: mariadb-unix-socket
       hostPath:
@@ -43,3 +67,6 @@ spec:
     - name: setup-mysql
       hostPath:
         path: /usr/share/caasp-container-manifests/setup/mysql/setup-mysql.sh
+    - name: salt-admin-minion-pki
+      hostPath:
+        path: /etc/salt/pki/minion
