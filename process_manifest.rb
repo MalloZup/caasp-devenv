@@ -91,6 +91,10 @@ def patch_container_volumes(container)
         container_volume(name: "velum-source-code", path: "/srv/velum"),
         container_volume(name: "velum-bundle-config", path: "/srv/velum/.bundle")
       ]
+    when "dev-env-admin-node"
+      [
+        container_volume(name: "salt-admin-minion-config", path: "/etc/salt/minion.d")
+      ]
     else
       []
     end
@@ -173,7 +177,9 @@ def patch_host_volumes(yaml)
                                                              "velum-config")),
     host_volume(name: "salt", path: SALT_DIR),
     host_volume(name: "salt-master-config", path: File.join(salt_adapted_config_dir, "config",
-                                                            "master.d"))
+                                                            "master.d")),
+    host_volume(name: "salt-admin-minion-config", path: File.join(salt_adapted_config_dir, "config",
+                                                            "admin-minion.d"))
   ]
 end
 
