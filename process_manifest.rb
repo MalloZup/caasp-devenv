@@ -93,7 +93,8 @@ def patch_container_volumes(container)
       ]
     when "dev-env-admin-node"
       [
-        container_volume(name: "salt-admin-minion-config", path: "/etc/salt/minion.d")
+        container_volume(name: "salt-admin-minion-config", path: "/etc/salt/minion.d"),
+        container_volume(name: "salt-admin-minion-grains", path: "/etc/salt/grains")
       ]
     else
       []
@@ -179,7 +180,9 @@ def patch_host_volumes(yaml)
     host_volume(name: "salt-master-config", path: File.join(salt_adapted_config_dir, "config",
                                                             "master.d")),
     host_volume(name: "salt-admin-minion-config", path: File.join(salt_adapted_config_dir, "config",
-                                                            "admin-minion.d"))
+                                                            "admin-minion.d")),
+    host_volume(name: "salt-admin-minion-grains", path: File.join(salt_adapted_config_dir, "config",
+                                                            "admin-grains"))
   ]
 end
 

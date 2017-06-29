@@ -66,7 +66,8 @@ fi
 ruby adapt_salt_config.rb $SALT_DIR > /dev/null
 
 mkdir tmp/salt/config/admin-minion.d
-cp salt-admin-minion-config/* tmp/salt/config/admin-minion.d
+cp salt-admin-minion/config/* tmp/salt/config/admin-minion.d
+cp salt-admin-minion/grains tmp/salt/config/admin-grains
 
 for template in $(ls $CONTAINER_MANIFESTS_DIR/*.yaml)
 do
