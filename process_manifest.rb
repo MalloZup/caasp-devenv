@@ -86,7 +86,7 @@ def patch_container_volumes(container)
       [
         container_volume(name: "salt-master-config", path: "/etc/salt/master.d")
       ]
-    when /^velum-dashboard/, "velum-event-processor"
+    when /^velum-/
       [
         container_volume(name: "velum-source-code", path: "/srv/velum")
       ]
