@@ -63,7 +63,7 @@ def patch_container_envvars(container)
     when "RAILS_ENV"
       envvar["value"] = "development"
     when "VELUM_PORT"
-      envvar["value"] = "3000"
+      envvar["value"] = "3000" if container["name"] == "velum-dashboard"
     end
   end
 end
@@ -86,14 +86,14 @@ def patch_container_volumes(container)
       [
         container_volume(name: "salt-master-config", path: "/etc/salt/master.d")
       ]
-    when "velum-dashboard", "velum-event-processor"
+    when /^velum-dashboard/, "velum-event-processor"
       [
-        container_volume(name: "velum-source-code", path: "/srv/velum"),
-        container_volume(name: "velum-bundle-config", path: "/srv/velum/.bundle")
+        container_volume(name: "velum-source-code", path: "/srv/velum")
       ]
     when "dev-env-admin-node"
       [
-        container_volume(name: "salt-admin-minion-config", path: "/etc/salt/minion.d")
+        container_volume(name: "salt-admin-minion-config", path: "/etc/salt/minion.d"),
+        container_volume(name: "salt-admin-minion-grains", path: "/etc/salt/grains")
       ]
     else
       []
@@ -155,7 +155,6 @@ def patch_root_dir(volume)
                                                      "fake-root")),
                          volume["hostPath"]["path"]
     volume["hostPath"]["path"] = host_path
-    FileUtils.mkdir_p host_path
     true
   else
     false
@@ -173,13 +172,13 @@ def patch_host_volumes(yaml)
   end
   yaml["spec"]["volumes"] += [
     host_volume(name: "velum-source-code", path: VELUM_SOURCE_CODE_DIR),
-    host_volume(name: "velum-bundle-config", path: File.join(VELUM_SOURCE_CODE_DIR, "kubernetes",
-                                                             "velum-config")),
     host_volume(name: "salt", path: SALT_DIR),
     host_volume(name: "salt-master-config", path: File.join(salt_adapted_config_dir, "config",
                                                             "master.d")),
     host_volume(name: "salt-admin-minion-config", path: File.join(salt_adapted_config_dir, "config",
-                                                            "admin-minion.d"))
+                                                                  "admin", "minion.d")),
+    host_volume(name: "salt-admin-minion-grains", path: File.join(salt_adapted_config_dir, "config",
+                                                            "admin", "grains"))
   ]
 end
 

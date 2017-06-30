@@ -55,9 +55,14 @@ spec:
     - name: dev-env-admin-node
       image: sles12/salt-minion:2016.11.4
       volumeMounts:
+        - name: salt-minion-ca-certificates
+          mountPath: /etc/pki
         - name: salt-admin-minion-pki
           mountPath: /etc/salt/pki/minion
   volumes:
+    - name: salt-minion-ca-certificates
+      hostPath:
+        path: /etc/pki
     - name: mariadb-unix-socket
       hostPath:
         path: /var/run/mysql
