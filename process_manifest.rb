@@ -62,8 +62,6 @@ def patch_container_envvars(container)
     case envvar["name"]
     when "RAILS_ENV"
       envvar["value"] = "development"
-    when "VELUM_PORT"
-      envvar["value"] = "3000" if container["name"] == "velum-dashboard"
     end
   end
 end
