@@ -1,7 +1,5 @@
 # CaaSP Development Environment Helper Functions
 
-set -euo pipefail
-
 find_container() {
   local name=$1
 
