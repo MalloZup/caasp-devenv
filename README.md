@@ -47,6 +47,24 @@ interaction will be omitted. This plays nice with CI jobs, for example:
 $ VELUM_DIR=~/projects/kubic-project/velum SALT_DIR=~/projects/kubic-project/salt CONTAINER_MANIFESTS_DIR=~/projects/kubic-project/caasp-container-manifests ./start --non-interactive
 ```
 
+#### Velum development image rebuilding
+
+The Velum development image will be rebuilt by default:
+
+* A new image is present in the registry
+* The `Gemfile.lock` contents have changed
+
+The first case can be avoided by passing to the `start` script `SKIP_IMAGE_UPDATE`, like this:
+
+```sh
+$ SKIP_IMAGE_UPDATE=1 VELUM_DIR=~/projects/kubic-project/velum SALT_DIR=~/projects/kubic-project/salt CONTAINER_MANIFESTS_DIR=~/projects/kubic-project/caasp-container-manifests ./start
+```
+
+If you are using `SKIP_IMAGE_UPDATE` the development image will only be built if the image itself
+is missing or if the `Gemfile.lock` contents changed. There is no way to avoid the rebuild if the
+`Gemfile.lock` contents changed, as the image wouldn't properly work in this case, so if you
+modified the `Gemfile.lock` it's required for the image to be rebuilt.
+
 ### Staging based development environment
 
 You can provide the `STAGING` environment variable to the start script, so containers will be pulled
