@@ -49,6 +49,11 @@ then
     exit 1
 fi
 
+if [ -z ${REGISTRY_URL+x} ]
+then
+    REGISTRY_URL=docker-testing-registry.suse.de
+fi
+
 # cleaning up development image when necessary
 if [ "$(docker images  --format '{{title .ID}}' sles12/velum:development)" != "" ]; then
   log "comparing remote and local Gemfile.lock to see if the local development image needs to be rebuilt"
@@ -70,7 +75,7 @@ cp -r salt-admin-minion-config/* tmp/salt/config/admin
 for template in $(ls $CONTAINER_MANIFESTS_DIR/*.yaml)
 do
     log "Processing template $template..."
-    cat $template | ruby process_manifest.rb $CONTAINER_MANIFESTS_DIR $VELUM_DIR $SALT_DIR > manifests/$(basename $template)
+    cat $template | REGISTRY_URL=$REGISTRY_URL ruby process_manifest.rb $CONTAINER_MANIFESTS_DIR $VELUM_DIR $SALT_DIR > manifests/$(basename $template)
 done
 
 default_interface=$(awk '$2 == 00000000 { print $1 }' /proc/net/route)
@@ -78,7 +83,7 @@ ip_address=$(ip addr show $default_interface | awk '$1 == "inet" {print $2}' | c
 
 for template in $(ls manifest-templates/*.yaml)
 do
-    cat $template | ruby process_manifest.rb $CONTAINER_MANIFESTS_DIR $VELUM_DIR $SALT_DIR | sed -e "s#\${ip_address}#$ip_address#" > manifests/$(basename $template)
+    cat $template | REGISTRY_URL=$REGISTRY_URL ruby process_manifest.rb $CONTAINER_MANIFESTS_DIR $VELUM_DIR $SALT_DIR | sed -e "s#\${ip_address}#$ip_address#" > manifests/$(basename $template)
 done
 
 if ! $(which kubelet >&/dev/null); then
@@ -92,7 +97,7 @@ sudo mkdir -p $PWD/tmp/mariadb-socket
 sudo chmod 777 $PWD/tmp/mariadb-socket
 
 if [ -z "$SKIP_IMAGE_UPDATE" ]; then
-  docker pull docker-testing-registry.suse.de/devel/sles12/velum-development | grep "up to date" &> /dev/null
+  docker pull $REGISTRY_URL/devel/sles12/velum-development | grep "up to date" &> /dev/null
   image_up_to_date=$?
 fi
 
@@ -104,7 +109,7 @@ if [[ $image_up_to_date -eq 0 ]] && ( docker images | grep "^sles12/velum" | gre
   log "Velum development image is present and up to date"
 else
   log "Building Velum development image..."
-  CONTAINER_BUILD=`docker run -v $VELUM_DIR:/srv/velum -d docker-testing-registry.suse.de/devel/sles12/velum-development \
+  CONTAINER_BUILD=`docker run -v $VELUM_DIR:/srv/velum -d $REGISTRY_URL/devel/sles12/velum-development \
                     bash -c "gem install --no-ri --no-rdoc --install-dir /var/lib/velum/ruby/2.1.0 bundler && \
                     bundle config --local frozen 0 && \
                     bundle config --local build.nokogiri --use-system-libraries && \

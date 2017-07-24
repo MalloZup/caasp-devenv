@@ -13,6 +13,7 @@ end
 CONTAINERS_MANIFESTS_DIR = ARGV[0]
 VELUM_SOURCE_CODE_DIR = ARGV[1]
 SALT_DIR = ARGV[2]
+REGISTRY_URL = ENV.fetch("REGISTRY_URL", "docker-testing-registry.suse.de")
 
 CONTAINERS_MANIFESTS_ORIG_DIR = "/usr/share/caasp-container-manifests".freeze
 SALT_ORIG_DIR = "/usr/share/salt/kubernetes".freeze
@@ -50,7 +51,7 @@ def patch_container_image(container)
   if container["image"] =~ /^sles12\/velum/
     container["image"] = "sles12/velum:development"
   elsif container["image"] =~ /^sles12/
-    container["image"] = "docker-testing-registry.suse.de/#{registry_container_image container}"
+    container["image"] = "#{REGISTRY_URL}/#{registry_container_image container}"
     container["imagePullPolicy"] = "Always"
   else
     warn "unknown image #{container["image"]}; won't replace it"
