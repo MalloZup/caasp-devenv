@@ -21,3 +21,5 @@ spec:
       value: http://0.0.0.0:2379
     - name: ETCD_ADVERTISE_CLIENT_URLS
       value: http://${ip_address}:2379
+    - name: ETCD_INITIAL_CLUSTER
+      value: default=http://${ip_address}:2380
