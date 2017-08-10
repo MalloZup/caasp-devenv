@@ -97,7 +97,7 @@ This will effectively use the `devel` version of the containers.
 ## Accessing your shiny development environment
 
 Once that you have started the development environment, you will be able to point your preferred
-browser to `http://localhost:3000` and you should be greeted with the CaaSP welcoming page.
+browser to `http://localhost:80` and you should be greeted with the CaaSP welcoming page.
 
 ## Hacking on Velum
 
