@@ -43,8 +43,9 @@ def patch_annotation_image(annotation)
 end
 
 def registry_container_image(container)
+  container_image = container["image"].gsub /__TAG__/, "latest"
   stage = ENV.fetch("STAGING", "release")
-  stage == "release" ? container["image"] : "#{ENV["STAGING"]}/#{container["image"]}"
+  stage == "release" ? container_image : "#{ENV["STAGING"]}/#{container_image}"
 end
 
 def patch_container_image(container)
