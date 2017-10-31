@@ -3,7 +3,7 @@
 This document outlines what's required to set up a CaaSP development environment machine, and how to
 develop CaaSP in an efficient way.
 
-You will need to have a working `kubelet` on your machine.
+You will need to have a working [kubelet](https://kubernetes.io/docs/setup/independent/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl) on your machine.
 
 You will also need to clone the following projects where you prefer on your local filesystem:
 
